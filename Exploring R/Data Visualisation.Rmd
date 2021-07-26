@@ -1,0 +1,103 @@
+---
+title: 'Week 5: Data Visualisation - Challenge Activity'
+author: "Brian Collins"
+date: "27/06/2021"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=TRUE}
+library(ggplot2)
+library(Hmisc)
+library(dplyr)
+data <- read.delim("D:/Data Analytics - MSc/Data Analytics & Management/Week 5/Datasets/EssayMarks.dat", header=TRUE)
+names(data) <- c("Essay", "Hours", "Grade")
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction-
+
+Based on the discussion with Heman during last weeks webinar, I've decided to use this week to brush up on the use of Markdown documents by submitting the weekly deliverables in the format.
+
+### Draw a scatter plot which shows Essay Marks and Hours of study
+
+```{r}
+scatter<- ggplot(data, aes(Hours, Essay))
+scatter+geom_point()+labs(x="Hours of Study", y="Essay Mark")+ggtitle("Comparing Hours of Study to Essay Mark")+theme(plot.title=element_text(hjust=0.5))
+```
+
+### Draw a regression linear line for the above graph
+
+```{r}
+scatter+geom_point()+labs(x="Hours of Study", y="Essay Mark")+ggtitle("Comparing Hours of Study to Essay Mark")+theme(plot.title=element_text(hjust=0.5))+geom_smooth(method="lm", se=F, colour="coral")
+```
+
+### Draw a regression linear line showing the 95% confidence interval
+```{r}
+scatter+geom_point()+labs(x="Hours of Study", y="Essay Mark")+ggtitle("Comparing Hours of Study to Essay Mark")+theme(plot.title=element_text(hjust=0.5))+geom_smooth(method="lm", colour="coral", alpha=0.3)
+```
+
+### Draw a curved regression line for the above graph
+```{r}
+scatter+geom_point()+labs(x="Hours of Study", y="Essay Mark")+ggtitle("Comparing Hours of Study to Essay Mark")+theme(plot.title=element_text(hjust=0.5))+geom_smooth(colour="cornflowerblue", se=F)
+```
+
+### Draw a regression curved line showing the 95% confidence interval
+```{r}
+scatter+geom_point()+labs(x="Hours of Study", y="Essay Mark")+ggtitle("Comparing Hours of Study to Essay Mark")+theme(plot.title=element_text(hjust=0.5))+geom_smooth(colour="cornflowerblue", alpha=0.3)
+```
+
+### Draw the above graphs in filled triangles
+```{r}
+scatter+geom_point(shape=17, position="jitter")+labs(x="Hours of Study", y="Essay Mark")+ggtitle("Comparing Hours of Study to Essay Mark")+theme(plot.title=element_text(hjust=0.5))+geom_smooth(colour="cornflowerblue", alpha=0.3)
+```
+
+### Draw the scatter plot which also shows the grades
+```{r}
+scatter+geom_point(aes(colour=Grade))+labs(x="Hours of Study", y="Essay Mark")+ggtitle("Comparing Hours of Study to Essay Mark")+theme(plot.title=element_text(hjust=0.5),legend.position="bottom")+geom_smooth(method="lm", colour="cornflowerblue", alpha=0.3)+scale_color_discrete(breaks=c("First Class", "Upper Second Class", "Lower Second Class", "Third Class"))
+```
+
+### Draw a histogram for the Essay Marks variable
+```{r}
+hist<-ggplot(data, aes(Essay))
+hist + geom_histogram(binwidth = 5, colour="black", fill="cyan")+ggtitle("Histogram of Student Essay Marks")+theme(plot.title = element_text(hjust = 0.5))+labs(x="Essay Mark", y="Frequency")
+```
+
+### Draw a histogram for the Hours of study variable
+```{r}
+hist2<-ggplot(data, aes(Hours))
+hist2 + geom_histogram(binwidth = 1, colour="black", fill="darkgoldenrod1")+ggtitle("Histogram of Student Hours Studied")+theme(plot.title = element_text(hjust = 0.5))+labs(x="Hours Studied", y="Frequency")
+```
+
+### Draw a box-plot for the Essay Marks variable
+```{r}
+box <- ggplot(data, aes(Essay))
+box + geom_boxplot(fill="azure3")+ggtitle("Boxplot of Student Essay Marks")+theme(plot.title = element_text(hjust = 0.5), axis.text.y=element_blank())+labs(x="Essay Mark")
+```
+
+### Draw a box-plot for the Hours of study variable 
+```{r}
+box2 <- ggplot(data, aes(Hours))
+box2 + geom_boxplot(fill="beige")+ggtitle("Boxplot of Student Study Hours")+theme(plot.title = element_text(hjust = 0.5), axis.text.y=element_blank())+labs(x="Hours Studied")
+```
+### Draw a barchart for the Hours of study and Essay Marks variables including error bars
+
+To complete this and produce a graph that with data that was could be easily interpreted by a passing viewer I first created a new dataframe by rounding the hours column to the closest integer, creating a smaller number of distinct values to display on the x-axis. Observations in the Essay(result) column were kept as numeric values to ensure that any error bars were totally reflective of the observations in the underlying dataset.
+
+```{r}
+barround <- data[,1:2]
+barround <- barround %>% mutate_at(vars(-Essay), funs(round(.,0)))
+bar <- ggplot(barround, aes(Hours, Essay))
+bar + stat_summary(fun.y="mean", geom="bar", fill="brown1") + stat_summary(fun.data="mean_cl_normal", geom="errorbar", width=0.3, colour="azure4") +ggtitle("Student Study Hours vs Average Mark Received") +theme(plot.title = element_text(hjust = 0.5)) + labs(x="Hours Studied", y="Mark Recieved")
+```
+
+### Draw Pie Charts for the Hours of study and Essay Marks variables including error bars
+
+As any reader can appreciate, pies get messy when they're cut into too many slices. With this in mind I elected to avoid incorporating continuous variables, even rounded, into my pie chart. I did consider clustering the data into ranges and then representing percentage of total based on frequency as slices of the chart. With that in mind though, it was clear that perhaps I was best off keeping things simple and using the Pie to represent final grade assigned as a proportion of total. 
+
+```{r}
+piedata <- data %>% group_by(Grade) %>% tally()
+piehours <- ggplot(piedata, aes(x="", y=n, fill=Grade))
+piehours + geom_bar(width=1, stat="identity")+coord_polar("y", start=0, direction=1)+theme_classic()+theme(axis.title.x=element_blank(), axis.title.y=element_blank(), axis.text.x=element_blank(), axis.text.y=element_blank())+theme_void()+ggtitle("Final Grade Achieved")+theme(plot.title = element_text(hjust = 0.5), legend.position="bottom" )+scale_fill_discrete(breaks=c("First Class", "Upper Second Class", "Lower Second Class", "Third Class"))+geom_label(aes(label = n), position = position_stack(vjust = 0.5), show.legend = FALSE, colour="black")+ scale_fill_brewer()
+```

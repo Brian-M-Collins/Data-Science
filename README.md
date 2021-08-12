@@ -1,2 +1,2 @@
 # Data-Science
-adding significant deliverables against completion of IBM Data Science Professional Certificate alongside any other examples of DS work completed
+adding examples of data science focused work alongside cleansed versions of analyses completed for my employer.

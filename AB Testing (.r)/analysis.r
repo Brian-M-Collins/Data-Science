@@ -6,8 +6,8 @@ library(reshape2)
 
 options(scipen = 999) #forcing R to display decimals instead of scientific notation
 
-cust_data <- read.csv(file="C:/Users/Brian/Desktop/Joined.csv")
-test_results <- read.csv(file ="C:/Users/Brian/Desktop/summary table.csv")
+cust_data <- read.csv(file="Joined.csv")
+test_results <- read.csv(file ="summary table.csv")
 
 #creating top-level analysis of actions
 test_perc <- test_results %>% mutate_at(vars(-name), funs(./sum(.)))
@@ -18,6 +18,7 @@ names(final_table)[3] <- "C.%AGE_OF_TOTAL"
 names(final_table)[5] <- "T.%AGE_OF_TOTAL"
 final_table <- final_table %>% mutate_at(vars(3, 5), funs(round(.,4)))
 
+#starting a/b testing
 cust_data$converted <- ifelse (cust_data$name == 'pay', 1,0)
 Control_Subset_Pay <- cust_data %>% filter(variant == 'control', converted==1)
 conversions_control <- nrow(Control_Subset_Pay)
@@ -32,6 +33,7 @@ conversion_rate_treatment <- (conversions_treatment/treatment_total)
 print(conversion_rate_treatment)
 
 uplift <- (conversion_rate_treatment - conversion_rate_control)/conversion_rate_control*100#7.56%
+print(uplift)
 
 #Pooled sample proportion for treatment and control variants
 pooled_probability <- (conversion_rate_control+conversion_rate_treatment)/(control_total+treatment_total)#0.00000001
@@ -127,5 +129,7 @@ role_obs <- role_obs[!(role_obs$role=="NULL" | role_obs$variant=="NULL"),]
 bar <- ggplot(role_obs, aes(x=role, fill=name)) 
 bar + geom_bar(position='dodge') + scale_fill_brewer() + facet_wrap(~variant) + scale_y_continuous(trans='log10') + labs(x='Account Role', y='Count (log10)') + ggtitle("Count of Events by Role and Variant") + theme(plot.title=element_text(hjust=0.5))
 
-freqpoly <- ggplot(role_obs, aes(created_at, colour=variant))
-freqpoly + geom_freqpoly(binwidth=2) + labs(x="Event Occurences (days)", y='Frequency') + ggtitle("Frequency plot of All Event Occurences by Variant Group") + theme(plot.title=element_text(hjust=0.5))
+poly <- cust_data %>% filter(converted==1)
+poly <- poly[!(poly$variant=="NULL"),]
+freqpoly <- ggplot(poly, aes(created_at, colour=variant))
+freqpoly + geom_freqpoly(binwidth=2) + labs(x="Event Occurences (days)", y='Frequency', caption="Binned into two day clusters") + ggtitle("Frequency plot of Conversions by Variant") + theme(plot.title=element_text(hjust=0.5))

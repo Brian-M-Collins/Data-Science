@@ -36,7 +36,7 @@ uplift <- (conversion_rate_treatment - conversion_rate_control)/conversion_rate_
 print(uplift)
 
 #Pooled sample proportion for treatment and control variants
-pooled_probability <- (conversion_rate_control+conversion_rate_treatment)/(control_total+treatment_total)#0.00000001
+pooled_probability <- (conversions_control+conversions_treatment)/(control_total+treatment_total)#0.00000001
 #Calculating Std Err
 SE_pooled_probability <- sqrt(pooled_probability*(1-pooled_probability) * ((1/control_total) + (1/treatment_total)))#0.0000001
 #Calculating Margin of Error

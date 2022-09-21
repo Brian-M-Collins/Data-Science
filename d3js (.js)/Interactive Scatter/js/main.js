@@ -90,8 +90,6 @@ continents.forEach((continent, i) => {
 })
 
 
-
-
 d3.json("data/data.json").then(function(data){
 	// clean data
 	const formattedData = data.map(year => {
